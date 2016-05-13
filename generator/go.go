@@ -60,6 +60,8 @@ type GoGenerator struct {
 	Format      bool
 	Pointers    bool
 	SignedBytes bool
+
+	InputFile string
 }
 
 var goKeywords = map[string]bool{
@@ -747,6 +749,10 @@ func (g *GoGenerator) Generate(outPath string) (err error) {
 	rpcPackages := map[string]string{}
 
 	for path, th := range g.ThriftFiles {
+		if path != g.InputFile {
+			continue
+		}
+
 		pkg := g.Packages[path]
 		filename := strings.ToLower(filepath.Base(path))
 		for i := len(filename) - 1; i >= 0; i-- {
@@ -790,6 +796,10 @@ func (g *GoGenerator) Generate(outPath string) (err error) {
 	}
 
 	for path, name := range rpcPackages {
+		if path != g.InputFile {
+			continue
+		}
+
 		outfile := filepath.Join(path, "rpc_stub.go")
 
 		fi, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)

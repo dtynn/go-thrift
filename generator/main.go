@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"sort"
@@ -79,6 +80,12 @@ func main() {
 	filename := flag.Arg(0)
 	outpath := flag.Arg(1)
 
+	abs, err := filepath.Abs(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "fail to get absolute path %s\n", err)
+		os.Exit(2)
+	}
+
 	p := &parser.Parser{}
 	parsedThrift, _, err := p.ParseFile(filename)
 	if err != nil {
@@ -90,6 +97,8 @@ func main() {
 		ThriftFiles: parsedThrift,
 		Format:      true,
 		SignedBytes: *flagGoSignedBytes,
+
+		InputFile: abs,
 	}
 	err = generator.Generate(outpath)
 	if err != nil {
